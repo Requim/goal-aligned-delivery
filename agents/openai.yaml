@@ -1,0 +1,6 @@
+interface:
+  display_name: "目标对齐交付"
+  short_description: "将各类需求转为可验证结果，按任务选择约束与验收，减少交付偏差"
+  default_prompt: "使用 $goal-aligned-delivery 处理我的需求：先识别任务类型、目标和验收条件，再在授权范围内交付并验证。"
+policy:
+  allow_implicit_invocation: true
