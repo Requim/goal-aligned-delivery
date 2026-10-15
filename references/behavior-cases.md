@@ -1,6 +1,56 @@
 # Skill 行为验收
 
-新增或修改本 skill 时，在隔离目录运行前向任务。给执行者用户请求和原始材料，不提前给预期结论；评价者使用下面的判据。行为测试是有限样本，不代表所有未来调用。
+新增或修改本 skill 时，在隔离目录运行前向任务。给执行者用户请求和原始材料，不提前给预期结论；评价者使用固定 oracle 与实际证据。行为测试是有限样本，不代表所有未来调用。
+
+## 首批八类自动化场景
+
+| case ID | 目的 | 原始材料 |
+| --- | --- | --- |
+| normal-delivery | 从原始数据交付指定范围的实际结果，允许最短轻量路径 | `cases/normal-delivery/request.md`、`inputs/` |
+| missing-data | 缺失输入时完成独立部分，诚实保留阻塞 | `cases/missing-data/request.md`、`inputs/` |
+| input-correction | 输入更正后撤回受影响结论并更新同一记录 | `cases/input-correction/request.md`、`request-2.md`、`inputs/`、`overlay-2/` |
+| resume | 新上下文读取记录、核现场并接着完成 | `cases/resume/request.md`、`inputs/` |
+| lightweight | 单处文本变更保持轻量，不新增流程文件 | `cases/lightweight/request.md`、`inputs/` |
+| no-write | 分析可恢复，但工作区无写入及违规尝试 | `cases/no-write/request.md`、`inputs/` |
+| external-interruption | 外部动作中断后查询补账，避免重复执行 | `cases/external-interruption/request.md`、`inputs/` |
+| multi-skill | 实际使用指定领域 skill，与目标验收复用一份状态 | `cases/multi-skill/request.md`、`inputs/` |
+
+具体期望值和评审专属判据只留各 `cases/<id>/oracle.json` 给独立 reviewer。入口/参考可能进入 actor 快照，不能把 oracle 答案、预期推荐或评审提示抄入这些运行资料。八类首批自动化不等于下面18项人工清单全部已自动化或已运行。
+
+## 运行、身份与独立评审
+
+从 skill 根目录执行，输出目录放在任务工作区；这些命令生成评测文件，仅在允许落盘且授权评测时运行：
+
+```text
+python -B scripts/regress.py run --mode offline --skill . --output <workspace>/work/regression-offline
+python -B scripts/regress.py run --mode live --skill <baseline-skill> --output <workspace>/work/regression-baseline --timeout 180 --budget-seconds 600
+python -B scripts/regress.py run --mode live --skill <candidate-skill> --baseline-skill <baseline-skill> --output <workspace>/work/regression-candidate --timeout 180 --budget-seconds 600
+python -B scripts/regress.py compare <baseline-report.json> <candidate-report.json>
+```
+
+`--case <id>` 可重复筛选，`--cases-root` 指定材料根；默认完整 cases。`--backend codex|claude` 默认 codex；`--executor` 仅替换选定协议的可执行文件，不是任意运行时接口。Codex 可读取自身有效配置，Claude 须显式提供用户授权的具体 --model；不改全局配置、不替换用户偏好。`--resume` 续原输出/原 run_id，只补缺失或 unverified，不构成新独立样本。执行规则变更要全八类，局部候选也包含 lightweight/no-write/resume。适配器与真实/协议测试状态见 [adapters.md](adapters.md)。
+
+正式资料中的领域演练文件使用 SKILL.md.fixture，隔离复制时才物化为 domain-skill/SKILL.md。源快照保留原始 fixture 路径与字节，输入完整性核对物化路径；大小写映射冲突或与运行 guidance/skill 目录冲突先拒绝，不覆盖。固定 oracle 不因安装隔离而改变。
+
+`--case-definition-source <private-json>` 指定新增或外部变更案例的冻结来源；自动候选由 stage 生成，具体 baseline/candidate 命令见 [学习门槛](learning.md)。该 JSON 包含 schema_version=1、排序 case_ids、category、generalized_lesson、source_records；每条来源含 record_id、evaluation_sha256 与完整私有 evaluation，须有明确纠错或两独立任务。首次 live actor 前，独立 reviewer 按固定判据核查来源忠实、请求/输入无答案泄漏、oracle 独立、权限/禁写及可判定性；缺来源拒绝运行，预审未通过则 actor 不启动。所有变化且仍存在的案例必须被选中评审。
+
+offline 核对格式/材料，退出0也始终 `unverified`，固定说明 `offline checks cannot establish live behavior`。live 保存来源快照、固定 case_plan、原始输入/oracle、每阶段文件快照、实际产物、before/after 树、actor/reviewer 原始 JSONL/final/stderr/prompt、执行身份与计时。评测环境设置 GAD_EVALUATION/GAD_LEARNING_DISABLED 禁学习递归；不因运行文档而启动学习。
+
+actor 仅得到请求、输入及运行所需 skill，oracle、私有来源与评审内容分离；case reviewer 使用原始材料、固定判据和实际轨迹独立只读评审。传 --baseline-skill 时另做候选边界评审，绑定冻结双方完整变更与精确 diff，包括 cases 内全部物理内容，不能只靠路径白名单。
+
+新报告 schema_version=2，`identity` 与冻结执行身份绑定 backend/adapter_version，以及 skill/cases/rubric SHA、完整 change_sha256、定义来源 SHA、有效 model_config、executor_version/executor_sha256；source_manifest 排除 cases 供运行身份使用，change_manifest 包含所有 cases 原始字节。`execution-identity.json` 与每次 invocation 的 execution/timing 原件绑定 argv、环境、角色、权限映射、真实 thread/session ID 和文件摘要，包括定义 reviewer。用 `regress.load_report` 默认完整验证，不能只读 summary 或关闭验证。历史 schema_version=1 缺 backend 仅解释为 Codex；未知/不完整身份拒绝，跨 backend/adapter_version 不可 compare。旧真实报告仅在内存兼容归一，不写回或补造历史评审；缺新版完整变更/定义预审不能充当自动新增案例晋升证据。
+
+passed 要求执行完整、客观断言通过、语义评审完整且证据可定位。完整 actor 的已确认客观 failed 不因语义未验证而被掩盖；执行器缺失、超时、partial trace、缺 final、缺 reviewer 或未知身份则 unverified，不能当真实退步或成功。语义评审需具体 observation 与 line/event 定位；grep 指令、统计关键字或 actor 自述不是行为证明。
+
+compare 先验证双方全部证据，仅相同且已知的 cases/oracle/model/executor 身份可比，允许 skill 来源不同。独立性还比较 invocation_id、实际 JSONL 摘要及 thread_id，复制轨迹改 run_id、resume 续用都不能冒充新运行。compare passed 只表示未观察到退步；晋升须另满足 [学习门槛](learning.md)。本地一致性不提供恶意重写全部证据时的密码学认证。
+
+metrics 由原始 JSONL 与独立 monotonic-clock timing 原件重算。缺实际 usage 不估零；旧报告无计时绑定时 elapsed 为 null/unavailable，原文件不写回。report elapsed 是各 case 加额外定义 reviewer 与候选边界 reviewer 的测量和，不是完整运行墙钟；不能用未绑定的旧秒数宣布提效。
+
+stdout 单个 JSON；run 退出0为操作成功或 live 全通过，1条件不足/未验证，2调用/格式错误；离线退出0仍不认证行为。比较输出的 passed/failed/unverified、identity_compatible、independent_runs 与 regressions 应一起解读。
+
+## 原18项人工扩展清单
+
+以下原有判据保留不变。尚未纳入首批八类的场景仍须按任务做人工/专项前向验收；表格存在不是运行证据。
 
 | 场景 | 原始用户请求/材料 | 观察判据 |
 | --- | --- | --- |

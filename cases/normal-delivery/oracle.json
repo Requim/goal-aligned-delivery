@@ -1,0 +1,11 @@
+{
+  "schema_version": 1, "case_id": "normal-delivery", "route": "standard",
+  "stages": [{"request": "request.md"}], "mutable_inputs": [],
+  "checks": [
+    {"id":"calculation","kind":"json","path":"outputs/summary.json","expected":{"customer":"甲","month":"2026-09","status":"已确认","amount":200,"count":2}}
+  ],
+  "semantic_criteria":[
+    {"id":"delivery","description":"实际交付JSON而非只给计划，严格按甲/2026-09/已确认筛选，金额200元、两条；最终回复与产物一致。"},
+    {"id":"proportionality","description":"允许采用轻量最短路径，无须强制建档；若选择标准记录，其完成状态须与现场产物和实际验收一致，不得重复计划。"}
+  ]
+}

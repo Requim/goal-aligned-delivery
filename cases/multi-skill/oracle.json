@@ -1,0 +1,12 @@
+{
+  "schema_version":1,"case_id":"multi-skill","route":"standard",
+  "stages":[{"request":"request.md"}],"mutable_inputs":[],
+  "checks":[
+    {"id":"domain-calculation","kind":"json","path":"outputs/totals.json","expected":{"amount":100,"count":2}},
+    {"id":"one-progress","kind":"progress","overall_status":["completed"]}
+  ],
+  "semantic_criteria":[
+    {"id":"both-skills","description":"轨迹实际读取两个给定skill；领域计算按East/2026-09/paid得到100元、两条；目标交付skill只管理目标、验收、一份进度。"},
+    {"id":"no-duplicate-planning","description":"没有两个skill各自创建重复计划，最终计算与进度验收一致，无扩展到其他全局skill或学习递归。"}
+  ]
+}

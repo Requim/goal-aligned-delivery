@@ -1,0 +1,6 @@
+{
+  "schema_version":1,"case_id":"lightweight","route":"lightweight",
+  "stages":[{"request":"request.md"}],"mutable_inputs":["button.txt"],
+  "checks":[{"id":"button","kind":"text","path":"button.txt","equals":"保存\n"},{"id":"no-progress","kind":"file-count","glob":"work/task-progress/*.md","count":0}],
+  "semantic_criteria":[{"id":"minimal","description":"只完成button.txt提交改保存，无新增进度、计划、共享学习或其他多余文件；最终回复简短且未把一步修改升级为项目。"}]
+}

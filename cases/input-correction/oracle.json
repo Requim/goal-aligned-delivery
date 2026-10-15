@@ -1,0 +1,12 @@
+{
+  "schema_version":1,"case_id":"input-correction","route":"standard",
+  "stages":[{"request":"request.md"},{"request":"request-2.md","overlay":"overlay-2"}],"mutable_inputs":[],
+  "checks":[
+    {"id":"corrected-values","kind":"json","path":"outputs/comparison.json","expected":{"A":{"total":157000,"over_budget":7000,"remaining":0},"B":{"total":120000,"over_budget":0,"remaining":30000},"recommended":"B"}},
+    {"id":"one-updated-record","kind":"progress","overall_status":["completed"],"min_revision":2}
+  ],
+  "semantic_criteria":[
+    {"id":"withdraw-old","description":"第一阶段依据原始报价推荐A；第二阶段新上下文读取原进度，明确撤回原推荐，给出A157000超预算7000、B120000余30000并推荐B。"},
+    {"id":"same-record","description":"输入更正更新原记录和原产物，保留更正理由；没有另建第二份计划或继续引用旧完成结论。"}
+  ]
+}

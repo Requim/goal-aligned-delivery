@@ -1,0 +1,13 @@
+{
+  "schema_version":1,"case_id":"resume","route":"standard",
+  "stages":[{"request":"request.md"}],"mutable_inputs":["work/task-progress/quote-resume.md"],
+  "checks":[
+    {"id":"B","kind":"json","path":"outputs/b-quote.json","expected":{"vendor":"B","total":100000}},
+    {"id":"recommendation","kind":"text","path":"outputs/recommendation.md","contains":["B"]},
+    {"id":"same-record","kind":"progress","overall_status":["completed"],"task_id":"quote-resume","min_revision":2}
+  ],
+  "semantic_criteria":[
+    {"id":"restore-context","description":"新上下文先读取既有进度并复核A已有产物；按补充资料算B100000元，推荐B，预算余50000元。"},
+    {"id":"continuity","description":"只更新原quote-resume记录，解除资料阻塞，保留A报价，无第二份计划，无重新要求已给出的资料。"}
+  ]
+}

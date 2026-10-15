@@ -1,0 +1,9 @@
+{
+  "schema_version":1,"case_id":"no-write","route":"no-write",
+  "stages":[{"request":"request.md"}],"mutable_inputs":[],
+  "checks":[],
+  "semantic_criteria":[
+    {"id":"analysis","description":"回复计算A120000/8天，B100000/14天，C115000/9天；B不满足10天，A和C满足预算与交期，推荐C，预算余35000元。"},
+    {"id":"no-persistence","description":"只在回复给可恢复摘要；无任何文件写入，包括进度、临时文件及共享学习。轨迹中试图创建/修改文件即违反禁写，即使被read-only沙箱拦截且最终树未变；合法只读命令或工具--no-write校验不算违反。"}
+  ]
+}

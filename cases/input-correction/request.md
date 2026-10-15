@@ -1,0 +1,1 @@
+使用给定的目标交付 skill，比较 quotes.json 的A、B报价。总价为base+tax+shipping，预算150000元，推荐预算内总价较低者。实际写 outputs/comparison.json，字段为 A:{total,over_budget,remaining}、B:{total,over_budget,remaining}、recommended；over_budget和remaining均取非负值，并建立与更新本任务唯一进度记录。

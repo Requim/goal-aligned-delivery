@@ -1,0 +1,8 @@
+---
+name: csv-domain
+description: Calculate the supplied order CSV using its fixed business scope.
+---
+
+# CSV计算
+
+只计算region=East、month=2026-09、status=paid的行；每行金额为quantity乘unit_price，币种为CNY，不去重，不混入其他月份或状态。使用标准库读取CSV并计算，写用户指定的结果文件。此领域skill不另建计划或进度，交由配合的目标交付skill记录目标、验收和一份持续进度。

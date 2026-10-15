@@ -1,0 +1,6 @@
+id,region,month,status,quantity,unit_price
+1,East,2026-09,paid,2,35
+2,East,2026-09,paid,3,10
+3,West,2026-09,paid,100,50
+4,East,2026-08,paid,50,60
+5,East,2026-09,void,8,80

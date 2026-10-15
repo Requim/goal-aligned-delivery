@@ -1,0 +1,1 @@
+使用给定的目标交付 skill，继续现有报价交付任务。你没有上一段聊天，请先读取 work/task-progress/quote-resume.md 核对当前目标、已交付A与阻塞。补充的B报价资料已在 b-quote.json：总价为quantity*unit_price+shipping。补齐 outputs/b-quote.json（字段vendor、total），在 outputs/recommendation.md给比较与推荐，沿用原记录，不创建第二份计划。原已完成部分要核实且保留。
