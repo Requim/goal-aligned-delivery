@@ -5,6 +5,8 @@
 
 它根据任务风险选择轻量、标准或严格的执行方式，不把普通请求变成复杂工程项目。
 完成标准来自用户目标与可复核证据，而不是操作数量或助手的自述。
+多步骤任务会复用现有记录，或在任务工作区创建 `work/task-progress/<task-id>.md`，
+随执行、验证、阻塞和需求变化更新；续做时先读记录并核对实际材料。轻量任务不强制建档。
 
 ## 核心流程
 
@@ -22,6 +24,7 @@
 SKILL.md                          技能入口与执行原则
 agents/openai.yaml                界面信息与默认提示
 references/execution.md           执行、复核和恢复
+references/progress.md            进度文件、状态更新与中断续做
 references/contracts.md           交付契约、证据格式与检查器用法
 references/behavior-cases.md      行为验收案例
 references/principles.md          原理映射与能力边界
